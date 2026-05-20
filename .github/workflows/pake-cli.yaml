@@ -43,15 +43,6 @@ on:
         required: false
         type: boolean
         default: true
-      multi_arch:
-        description: "Universal binary (macOS only)"
-        required: false
-        type: boolean
-        default: false
-      targets:
-        description: "Package formats (comma-separated: deb,appimage,rpm)"
-        required: false
-        default: "deb"
       show_system_tray:
         description: "Show system tray"
         required: false
@@ -67,11 +58,16 @@ on:
         required: false
         type: boolean
         default: true
-      targets_apple:
-        description: "Target Apple Chip"
+      multi_arch:
+        description: "Universal binary (macOS only)"
         required: false
         type: boolean
-        default: true
+        default: false
+      targets:
+        description: "Package formats (comma-separated: deb,appimage,rpm)"
+        required: false
+        default: "deb"
+
 
 jobs:
   build:
@@ -158,10 +154,6 @@ jobs:
 
           if [ "${{ inputs.multi_window }}" == "true" ]; then
             ARGS+=("--multi-window")
-          fi
-
-          if [ "${{ inputs.targets_apple }}" == "true" ]; then
-            ARGS+=("--targets apple")
           fi
 
           echo "Running: node dist/cli.js ${ARGS[@]}"
