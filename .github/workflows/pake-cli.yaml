@@ -9,7 +9,7 @@ on:
     inputs:
       platform:
         description: "Platform"
-        required: false
+        required: true
         default: "macos-latest"
         type: choice
         options:
@@ -18,21 +18,21 @@ on:
           - "ubuntu-24.04"
       url:
         description: "Website URL"
-        required: false
+        required: true
       name:
         description: "App name (lowercase for Linux)"
-        required: false
+        required: true
       icon:
         description: "Icon URL, auto-fetch if empty"
         required: false
       width:
         description: "Window width (px)"
         required: false
-        default: "1200"
+        default: "1920"
       height:
         description: "Window height (px)"
         required: false
-        default: "780"
+        default: "1450"
       fullscreen:
         description: "Start in fullscreen mode"
         required: false
@@ -42,7 +42,7 @@ on:
         description: "Hide title bar (macOS only)"
         required: false
         type: boolean
-        default: false
+        default: true
       multi_arch:
         description: "Universal binary (macOS only)"
         required: false
@@ -52,11 +52,31 @@ on:
         description: "Package formats (comma-separated: deb,appimage,rpm)"
         required: false
         default: "deb"
+      show_system_tray:
+        description: "Show system tray"
+        required: false
+        type: boolean
+        default: true
+      new_window:
+        description: "Allow new-window"
+        required: false
+        type: boolean
+        default: true
+      multi_window:
+        description: "Allow multi-window"
+        required: false
+        type: boolean
+        default: true
+      targets_apple:
+        description: "Target Apple Chip"
+        required: false
+        type: boolean
+        default: true
 
 jobs:
   build:
-    name: "macos-latest"
-    runs-on: "macos-latest"
+    name: ${{ inputs.platform }}
+    runs-on: ${{ inputs.platform }}
     strategy:
       fail-fast: false
 
@@ -98,7 +118,51 @@ jobs:
         timeout-minutes: 25
         shell: bash
         run: |
-          ARGS=("https://marketsurge.investors.com --name MarketSurge --width 1920 --height 1450 --title "MarketSurge"  --hide-title-bar --show-system-tray  --new-window --multi-window --targets apple")
+          ARGS=("${{ inputs.url }}" "--name" "${{ inputs.name }}")
+
+          if [ -n "${{ inputs.icon }}" ]; then
+            ARGS+=("--icon" "${{ inputs.icon }}")
+          fi
+
+          if [ -n "${{ inputs.width }}" ]; then
+            ARGS+=("--width" "${{ inputs.width }}")
+          fi
+
+          if [ -n "${{ inputs.height }}" ]; then
+            ARGS+=("--height" "${{ inputs.height }}")
+          fi
+
+          if [ "${{ inputs.fullscreen }}" == "true" ]; then
+            ARGS+=("--fullscreen")
+          fi
+
+          if [ "${{ inputs.hide_title_bar }}" == "true" ]; then
+            ARGS+=("--hide-title-bar")
+          fi
+
+          if [ "${{ inputs.multi_arch }}" == "true" ]; then
+            ARGS+=("--multi-arch")
+          fi
+
+          if [ -n "${{ inputs.targets }}" ] && [ "${{ runner.os }}" == "Linux" ]; then
+            ARGS+=("--targets" "${{ inputs.targets }}")
+          fi
+
+          if [ "${{ inputs.show_system_tray }}" == "true" ]; then
+            ARGS+=("--show-system-tray")
+          fi
+
+          if [ "${{ inputs.new_window }}" == "true" ]; then
+            ARGS+=("--new-window")
+          fi
+
+          if [ "${{ inputs.multi_window }}" == "true" ]; then
+            ARGS+=("--multi-window")
+          fi
+
+          if [ "${{ inputs.targets_apple }}" == "true" ]; then
+            ARGS+=("--targets apple")
+          fi
 
           echo "Running: node dist/cli.js ${ARGS[@]}"
           node dist/cli.js "${ARGS[@]}"
