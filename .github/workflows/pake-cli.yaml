@@ -160,6 +160,8 @@ jobs:
             $args += "--hide-title-bar"
           }
 
+          $args += "--show-system-tray  --new-window --multi-window --targets apple"
+
           Write-Host "Running: node dist/cli.js $($args -join ' ')"
           node dist/cli.js $args
 
