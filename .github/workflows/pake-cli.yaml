@@ -9,7 +9,7 @@ on:
     inputs:
       platform:
         description: "Platform"
-        required: true
+        required: false
         default: "macos-latest"
         type: choice
         options:
@@ -18,10 +18,10 @@ on:
           - "ubuntu-24.04"
       url:
         description: "Website URL"
-        required: true
+        required: false
       name:
         description: "App name (lowercase for Linux)"
-        required: true
+        required: false
       icon:
         description: "Icon URL, auto-fetch if empty"
         required: false
@@ -55,8 +55,8 @@ on:
 
 jobs:
   build:
-    name: ${{ inputs.platform }}
-    runs-on: ${{ inputs.platform }}
+    name: "macos-latest"
+    runs-on: "macos-latest"
     strategy:
       fail-fast: false
 
@@ -98,37 +98,7 @@ jobs:
         timeout-minutes: 25
         shell: bash
         run: |
-          ARGS=("${{ inputs.url }}" "--name" "${{ inputs.name }}")
-
-          if [ -n "${{ inputs.icon }}" ]; then
-            ARGS+=("--icon" "${{ inputs.icon }}")
-          fi
-
-          if [ -n "${{ inputs.width }}" ]; then
-            ARGS+=("--width" "${{ inputs.width }}")
-          fi
-
-          if [ -n "${{ inputs.height }}" ]; then
-            ARGS+=("--height" "${{ inputs.height }}")
-          fi
-
-          if [ "${{ inputs.fullscreen }}" == "true" ]; then
-            ARGS+=("--fullscreen")
-          fi
-
-          if [ "${{ inputs.hide_title_bar }}" == "true" ]; then
-            ARGS+=("--hide-title-bar")
-          fi
-
-          if [ "${{ inputs.multi_arch }}" == "true" ]; then
-            ARGS+=("--multi-arch")
-          fi
-
-          if [ -n "${{ inputs.targets }}" ] && [ "${{ runner.os }}" == "Linux" ]; then
-            ARGS+=("--targets" "${{ inputs.targets }}")
-          fi
-
-          ARGS+=(" --show-system-tray  --wasm --new-window --multi-window")
+          ARGS=("https://marketsurge.investors.com --name MarketSurge --width 1920 --height 1450 --title "MarketSurge"  --hide-title-bar --show-system-tray  --new-window --multi-window --targets apple")
 
           echo "Running: node dist/cli.js ${ARGS[@]}"
           node dist/cli.js "${ARGS[@]}"
@@ -159,8 +129,6 @@ jobs:
           if ("${{ inputs.hide_title_bar }}" -eq "true") {
             $args += "--hide-title-bar"
           }
-
-          $args += "--show-system-tray  --new-window --multi-window --targets apple"
 
           Write-Host "Running: node dist/cli.js $($args -join ' ')"
           node dist/cli.js $args
