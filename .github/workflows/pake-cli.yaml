@@ -23,7 +23,7 @@ on:
         description: "App name (lowercase for Linux)"
         required: true
       icon:
-        description: "Icon URL, auto-fetch if empty"
+        description: "App icon path, auto-fetch if empty"
         required: false
       width:
         description: "Window width (px)"
@@ -48,6 +48,9 @@ on:
         required: false
         type: boolean
         default: true
+      system_tray_icon_path:
+        description: "System tray icon path"
+        required: false
       new_window:
         description: "Allow new-window"
         required: false
@@ -146,6 +149,10 @@ jobs:
 
           if [ "${{ inputs.show_system_tray }}" == "true" ]; then
             ARGS+=("--show-system-tray")
+          fi
+
+          if [ -n "${{ inputs.system_tray_icon_path }}" ]; then
+            ARGS+=("--system-tray-icon" "${{ inputs.system_tray_icon_path }}")
           fi
 
           if [ "${{ inputs.new_window }}" == "true" ]; then
